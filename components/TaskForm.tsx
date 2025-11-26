@@ -1,6 +1,6 @@
 import React, { useState, ChangeEvent } from 'react';
 import { Prioridade, Status, ManutencaoItem } from '../types';
-import { X, Upload, Plus, RotateCcw, FileText } from 'lucide-react';
+import { X, Upload, Plus, RotateCcw, FileText, Phone } from 'lucide-react';
 
 interface TaskFormProps {
   availableSectors: string[];
@@ -16,6 +16,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, taskToEdit, onClo
   const [setor, setSetor] = useState<string>(taskToEdit?.setor || availableSectors[0] || 'Geral');
   const [maquina, setMaquina] = useState(taskToEdit?.maquina || '');
   const [responsavel, setResponsavel] = useState(taskToEdit?.responsavel || '');
+  const [telefone, setTelefone] = useState(taskToEdit?.telefone || '');
   const [prazoEstimado, setPrazoEstimado] = useState(taskToEdit?.prazoEstimado || '');
   const [prioridade, setPrioridade] = useState<Prioridade>(taskToEdit?.prioridade || Prioridade.MEDIA);
   const [status, setStatus] = useState<Status>(taskToEdit?.status || Status.PENDENTE);
@@ -54,6 +55,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, taskToEdit, onClo
       setor: finalSector,
       maquina,
       responsavel,
+      telefone,
       prazoEstimado,
       prioridade,
       status,
@@ -199,6 +201,22 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, taskToEdit, onClo
                   onChange={(e) => setResponsavel(e.target.value)}
                   placeholder="Nome do técnico"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">WhatsApp / Telefone</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone size={18} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="tel"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={telefone}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    placeholder="Ex: 11999998888"
+                  />
+                </div>
               </div>
 
               <div>

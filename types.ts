@@ -26,12 +26,13 @@ export const SetoresPadrao = [
 
 export interface ManutencaoItem {
   id: string;
-  numeroOS?: string; // Novo campo para Ordem de Serviço
+  numeroOS?: string;
   titulo: string;
   descricao: string;
   setor: string;
   maquina: string;
   responsavel: string;
+  telefone?: string; // Novo campo para WhatsApp
   dataCriacao: string;
   prazoEstimado: string;
   status: Status;

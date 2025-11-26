@@ -149,6 +149,7 @@ export const generateAndSharePDF = async (task: ManutencaoItem) => {
   const fileName = `OS_${(task.numeroOS || task.id).replace(/[^a-z0-9]/gi, '_')}.pdf`;
 
   // 1. Tentar Web Share API (Mobile / Suportados)
+  // Nota: Isso envia o ARQUIVO direto para o app do WhatsApp no celular.
   if (navigator.share && navigator.canShare) {
     const blob = doc.output('blob');
     const file = new File([blob], fileName, { type: 'application/pdf' });
@@ -168,6 +169,7 @@ export const generateAndSharePDF = async (task: ManutencaoItem) => {
   }
 
   // 2. Fallback: Download + WhatsApp Web Link
+  // Isso baixa o PDF e abre a conversa.
   doc.save(fileName);
   
   const mensagem = `Olá! 
@@ -178,6 +180,14 @@ Estou enviando o relatório da *Ordem de Serviço ${task.numeroOS || ''}*.
 
 ⚠️ *O arquivo PDF foi baixado no seu dispositivo.* Por favor, anexe-o a esta conversa.`;
 
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  // Se tiver telefone cadastrado, usa ele. Senão, abre a lista de contatos.
+  let whatsappUrl;
+  if (task.telefone) {
+      const cleanPhone = task.telefone.replace(/\D/g, ''); // Remove tudo que não é número
+      whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensagem)}`;
+  } else {
+      whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  }
+  
   window.open(whatsappUrl, '_blank');
 };
