@@ -37,6 +37,16 @@ export interface ManutencaoItem {
   status: Status;
   prioridade: Prioridade;
   imagemUrl?: string;
+  itensOS?: {
+    quantidade: number;
+    unidade: string;
+    descricao: string;
+  }[];
+  historico?: {
+    data: string;
+    mensagem: string;
+    usuario: string;
+  }[];
 }
 
 export interface DashboardStats {

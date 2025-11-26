@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { 
   ClipboardList, Plus, Search, Calendar, User, 
   MoreVertical, AlertTriangle, CheckCircle2, Clock, Ban,
-  Sparkles, Filter, Trash2, Image as ImageIcon, Wrench, Package, FileText
+  Sparkles, Filter, Trash2, Image as ImageIcon, Wrench, Package, FileText, Share2, Edit2
 } from 'lucide-react';
 import { ManutencaoItem, Status, Prioridade, SetoresPadrao } from './types';
 import TaskForm from './components/TaskForm';
 import StatsCharts from './components/StatsCharts';
 import { gerarAnaliseTecnica } from './services/geminiService';
+import { generateAndSharePDF } from './services/pdfService';
 
 // Initial Mock Data to populate first view
 const MOCK_DATA: ManutencaoItem[] = [
@@ -80,6 +81,7 @@ function App() {
   });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<ManutencaoItem | null>(null);
   const [filterText, setFilterText] = useState('');
   const [filterSetor, setFilterSetor] = useState<string>('Todos');
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
@@ -93,27 +95,53 @@ function App() {
     localStorage.setItem('manutencao_setores', JSON.stringify(availableSectors));
   }, [availableSectors]);
 
-  const addTask = (newTaskData: Omit<ManutencaoItem, 'id' | 'dataCriacao'>, newSector?: string) => {
+  const handleSaveTask = (taskData: Omit<ManutencaoItem, 'id' | 'dataCriacao'> & { id?: string }, newSector?: string) => {
     if (newSector && !availableSectors.includes(newSector)) {
       setAvailableSectors(prev => [...prev, newSector].sort());
     }
 
-    const newTask: ManutencaoItem = {
-      ...newTaskData,
-      id: Date.now().toString(),
-      dataCriacao: new Date().toISOString().split('T')[0],
-    };
-    setTarefas(prev => [newTask, ...prev]);
+    if (taskData.id) {
+      // Update existing
+      setTarefas(prev => prev.map(t => t.id === taskData.id ? {
+        ...t,
+        ...taskData,
+        id: taskData.id!
+      } : t));
+    } else {
+      // Create new
+      const newTask: ManutencaoItem = {
+        ...taskData,
+        id: Date.now().toString(),
+        dataCriacao: new Date().toISOString().split('T')[0],
+      };
+      setTarefas(prev => [newTask, ...prev]);
+    }
+  };
+
+  const openEditModal = (task: ManutencaoItem) => {
+    setEditingTask(task);
+    setIsFormOpen(true);
+  };
+
+  const openNewTaskModal = () => {
+    setEditingTask(null);
+    setIsFormOpen(true);
   };
 
   const updateStatus = (id: string, newStatus: Status) => {
     setTarefas(prev => prev.map(t => t.id === id ? { ...t, status: newStatus } : t));
   };
 
-  const deleteTask = (id: string) => {
+  const deleteTask = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     if(window.confirm('Tem certeza que deseja excluir esta pendência?')) {
         setTarefas(prev => prev.filter(t => t.id !== id));
     }
+  };
+
+  const handleSharePDF = async (task: ManutencaoItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    await generateAndSharePDF(task);
   };
 
   const handleSmartAnalysis = async () => {
@@ -183,7 +211,7 @@ function App() {
               {isAnalyzing ? 'Analisando...' : 'Análise IA'}
             </button>
             <button 
-              onClick={() => setIsFormOpen(true)}
+              onClick={openNewTaskModal}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-sm shadow-md shadow-blue-500/20"
             >
               <Plus size={18} />
@@ -265,12 +293,16 @@ function App() {
             </div>
           ) : (
             filteredTasks.map(task => (
-              <div key={task.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col">
+              <div 
+                key={task.id} 
+                onClick={() => openEditModal(task)}
+                className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col cursor-pointer group/card"
+              >
                 
                 {/* Card Image */}
-                <div className="h-48 bg-slate-100 relative overflow-hidden group">
+                <div className="h-48 bg-slate-100 relative overflow-hidden">
                   {task.imagemUrl ? (
-                    <img src={task.imagemUrl} alt={task.titulo} className="w-full h-full object-cover transition transform group-hover:scale-105 duration-500" />
+                    <img src={task.imagemUrl} alt={task.titulo} className="w-full h-full object-cover transition transform group-hover/card:scale-105 duration-500" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-300">
                       <ImageIcon size={48} />
@@ -306,7 +338,7 @@ function App() {
                      </div>
                   )}
                   
-                  <p className="text-slate-600 text-sm line-clamp-3 mb-4 flex-1">{task.descricao}</p>
+                  <p className="text-slate-600 text-sm line-clamp-2 mb-4 flex-1">{task.descricao}</p>
                   
                   <div className="space-y-3 pt-4 border-t border-slate-100">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -322,10 +354,27 @@ function App() {
 
                 {/* Card Footer Actions */}
                 <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex justify-between items-center">
-                   <div className="flex gap-1">
+                   <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        onClick={() => openEditModal(task)}
+                        className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition"
+                        title="Editar Detalhes"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+
+                      {/* WhatsApp / PDF Share Button */}
+                      <button
+                        onClick={(e) => handleSharePDF(task, e)}
+                        className="p-1.5 text-green-600 hover:bg-green-100 rounded transition"
+                        title="Gerar PDF e Compartilhar (WhatsApp)"
+                      >
+                        <Share2 size={18} />
+                      </button>
+
                       {task.status !== Status.CONCLUIDO && (
                         <button 
-                          onClick={() => updateStatus(task.id, Status.CONCLUIDO)}
+                          onClick={(e) => { e.stopPropagation(); updateStatus(task.id, Status.CONCLUIDO); }}
                           className="p-1.5 text-emerald-600 hover:bg-emerald-100 rounded transition" 
                           title="Concluir"
                         >
@@ -333,10 +382,9 @@ function App() {
                         </button>
                       )}
                       
-                      {/* Botão rápido para status Aguardando Peças se não estiver concluído */}
                       {task.status !== Status.CONCLUIDO && task.status !== Status.AGUARDANDO_PECAS && (
                         <button 
-                          onClick={() => updateStatus(task.id, Status.AGUARDANDO_PECAS)}
+                          onClick={(e) => { e.stopPropagation(); updateStatus(task.id, Status.AGUARDANDO_PECAS); }}
                           className="p-1.5 text-purple-600 hover:bg-purple-100 rounded transition" 
                           title="Aguardando Peças"
                         >
@@ -345,7 +393,7 @@ function App() {
                       )}
 
                       <button 
-                         onClick={() => deleteTask(task.id)}
+                         onClick={(e) => deleteTask(task.id, e)}
                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition" 
                          title="Excluir"
                       >
@@ -365,8 +413,9 @@ function App() {
       {isFormOpen && (
         <TaskForm 
           availableSectors={availableSectors}
+          taskToEdit={editingTask}
           onClose={() => setIsFormOpen(false)} 
-          onSave={addTask} 
+          onSave={handleSaveTask} 
         />
       )}
     </div>

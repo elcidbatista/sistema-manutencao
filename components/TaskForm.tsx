@@ -4,21 +4,22 @@ import { X, Upload, Plus, RotateCcw, FileText } from 'lucide-react';
 
 interface TaskFormProps {
   availableSectors: string[];
+  taskToEdit?: ManutencaoItem | null;
   onClose: () => void;
-  onSave: (task: Omit<ManutencaoItem, 'id' | 'dataCriacao'>, newSector?: string) => void;
+  onSave: (task: Omit<ManutencaoItem, 'id' | 'dataCriacao'> & { id?: string }, newSector?: string) => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, onClose, onSave }) => {
-  const [numeroOS, setNumeroOS] = useState('');
-  const [titulo, setTitulo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [setor, setSetor] = useState<string>(availableSectors[0] || 'Geral');
-  const [maquina, setMaquina] = useState('');
-  const [responsavel, setResponsavel] = useState('');
-  const [prazoEstimado, setPrazoEstimado] = useState('');
-  const [prioridade, setPrioridade] = useState<Prioridade>(Prioridade.MEDIA);
-  const [status, setStatus] = useState<Status>(Status.PENDENTE);
-  const [imagemUrl, setImagemUrl] = useState<string | undefined>(undefined);
+const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, taskToEdit, onClose, onSave }) => {
+  const [numeroOS, setNumeroOS] = useState(taskToEdit?.numeroOS || '');
+  const [titulo, setTitulo] = useState(taskToEdit?.titulo || '');
+  const [descricao, setDescricao] = useState(taskToEdit?.descricao || '');
+  const [setor, setSetor] = useState<string>(taskToEdit?.setor || availableSectors[0] || 'Geral');
+  const [maquina, setMaquina] = useState(taskToEdit?.maquina || '');
+  const [responsavel, setResponsavel] = useState(taskToEdit?.responsavel || '');
+  const [prazoEstimado, setPrazoEstimado] = useState(taskToEdit?.prazoEstimado || '');
+  const [prioridade, setPrioridade] = useState<Prioridade>(taskToEdit?.prioridade || Prioridade.MEDIA);
+  const [status, setStatus] = useState<Status>(taskToEdit?.status || Status.PENDENTE);
+  const [imagemUrl, setImagemUrl] = useState<string | undefined>(taskToEdit?.imagemUrl);
   
   // State for adding new sector
   const [isAddingSector, setIsAddingSector] = useState(false);
@@ -46,6 +47,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, onClose, onSave }
     const finalSector = isAddingSector && newSectorName.trim() ? newSectorName.trim() : setor;
 
     onSave({
+      id: taskToEdit?.id,
       numeroOS,
       titulo,
       descricao,
@@ -55,7 +57,10 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, onClose, onSave }
       prazoEstimado,
       prioridade,
       status,
-      imagemUrl
+      imagemUrl,
+      // Preserve complex objects if they exist
+      itensOS: taskToEdit?.itensOS,
+      historico: taskToEdit?.historico
     }, isAddingSector ? finalSector : undefined);
     
     onClose();
@@ -66,7 +71,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, onClose, onSave }
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-800">Nova Pendência</h2>
+            <h2 className="text-xl font-bold text-slate-800">{taskToEdit ? 'Editar Pendência' : 'Nova Pendência'}</h2>
           </div>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
             <X size={24} />
@@ -255,7 +260,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ availableSectors, onClose, onSave }
               type="submit"
               className="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition transform active:scale-95"
             >
-              Salvar Pendência
+              {taskToEdit ? 'Salvar Alterações' : 'Salvar Pendência'}
             </button>
           </div>
         </form>
