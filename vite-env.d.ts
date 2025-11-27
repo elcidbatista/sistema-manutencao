@@ -10,10 +10,11 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// Add process.env definition for Google GenAI SDK usage
-declare var process: {
-  env: {
+// Augment NodeJS namespace to include API_KEY in ProcessEnv
+// This avoids "Cannot redeclare block-scoped variable 'process'" error
+declare namespace NodeJS {
+  interface ProcessEnv {
     API_KEY: string;
     [key: string]: string | undefined;
   }
-};
+}
