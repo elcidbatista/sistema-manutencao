@@ -1,13 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+// Use process.env.API_KEY directly as per Google GenAI SDK guidelines.
+// Assume the environment variable is configured correctly in the execution context.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
-  if (!apiKey) {
-    return "API Key não configurada. Não é possível gerar análise inteligente.";
-  }
+  // Per guidelines, we do not manually check for the API key or prompt the user.
+  // We assume process.env.API_KEY is available.
 
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";
@@ -43,6 +43,6 @@ export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<st
     return response.text || "Não foi possível gerar a análise no momento.";
   } catch (error) {
     console.error("Erro ao chamar Gemini:", error);
-    return "Erro ao processar a análise com IA. Verifique a console para detalhes.";
+    return "Erro ao processar a análise com IA. Verifique o console para detalhes.";
   }
 };
