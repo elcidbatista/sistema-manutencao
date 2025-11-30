@@ -34,7 +34,7 @@ Para rodar localmente com Node.js (exemplo):
 1. Clone este repositório.
 2. Crie um arquivo `.env` com sua chave da API do Google:
    ```
-   API_KEY=sua_chave_aqui
+   API_KEY=AIzaSyD2klZLziUfwJkjru6CxbaoINLq3z49dnA
    ```
 3. Instale as dependências e inicie o servidor de desenvolvimento.
 
