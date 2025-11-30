@@ -1,8 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Inicializa o cliente GoogleGenAI.
-// A configuração no vite.config.ts substitui process.env.API_KEY pelo valor real da Vercel (VITE_API_KEY)
+// Inicializa o cliente GoogleGenAI usando a variável de ambiente process.env.API_KEY
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
@@ -40,6 +39,6 @@ export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<st
     return response.text || "Não foi possível gerar a análise no momento.";
   } catch (error) {
     console.error("Erro ao chamar Gemini:", error);
-    return "Erro ao processar a análise com IA. Verifique se a chave da API (VITE_API_KEY) está configurada corretamente na Vercel.";
+    return "Erro ao processar a análise com IA. Verifique os logs do console.";
   }
 };

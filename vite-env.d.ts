@@ -1,12 +1,9 @@
+// Fix for missing vite/client types
 // /// <reference types="vite/client" />
 
-// Permite que o TypeScript entenda process.env.API_KEY
-declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      API_KEY: string;
-    }
+declare var process: {
+  env: {
+    API_KEY: string;
+    [key: string]: any;
   }
-}
-
-export {};
+};
