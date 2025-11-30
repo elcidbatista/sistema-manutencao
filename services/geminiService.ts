@@ -1,10 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Inicializa a IA usando a variável de ambiente process.env.API_KEY
+// Inicializa a IA usando a variável de ambiente process.env.API_KEY conforme diretrizes
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
+  // A verificação de chave API foi removida pois a chave é assumida como pré-configurada.
+  
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";
   }
