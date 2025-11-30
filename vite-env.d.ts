@@ -1,9 +1,2 @@
-// Removed invalid reference to vite/client
-// /// <reference types="vite/client" />
-
-declare var process: {
-  env: {
-    API_KEY: string;
-    [key: string]: string | undefined;
-  }
-}
+// Type definitions for Vite environment
+// Reference to vite/client removed to resolve missing type definition error.
