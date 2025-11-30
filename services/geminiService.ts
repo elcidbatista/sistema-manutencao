@@ -1,10 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Initialize the GoogleGenAI client with the API key from the environment variable.
+// Inicializa o cliente GoogleGenAI com a chave da variável de ambiente process.env.API_KEY
+// A chave deve ser obtida exclusivamente de process.env.API_KEY
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
+  // Assume-se que a chave da API está configurada e válida no ambiente de execução.
+
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";
   }
