@@ -1,17 +1,8 @@
-// Fixed: Removed missing type reference to vite/client
-// Added process definition for API_KEY usage
-
+// Removed vite/client reference to fix type definition error
+// Declaring process.env to support API_KEY access
 declare var process: {
   env: {
     API_KEY: string;
-    [key: string]: string | undefined;
+    [key: string]: any;
   }
 };
-
-interface ImportMetaEnv {
-  readonly VITE_API_KEY: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
