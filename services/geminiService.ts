@@ -1,11 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Inicializa a IA usando a variável de ambiente process.env.API_KEY conforme diretrizes
+// Using process.env.API_KEY as per @google/genai coding guidelines.
+// Assumes process.env.API_KEY is pre-configured and accessible.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
-  // A verificação de chave API foi removida pois a chave é assumida como pré-configurada.
+  if (!process.env.API_KEY) {
+    console.error("API Key não encontrada. Verifique as variáveis de ambiente (API_KEY).");
+    return "Erro de configuração: Chave da API não encontrada.";
+  }
   
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";

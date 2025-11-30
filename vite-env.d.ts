@@ -1,9 +1,17 @@
-// Updated to fix missing vite/client type definition error
-// and to support process.env.API_KEY as per GenAI guidelines.
+// Removed invalid reference to vite/client.
+// Added declarations for process.env and ImportMeta.
 
-declare const process: {
+declare var process: {
   env: {
     API_KEY: string;
     [key: string]: string | undefined;
   }
 };
+
+interface ImportMetaEnv {
+  readonly VITE_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
