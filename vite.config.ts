@@ -3,15 +3,14 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Carrega variáveis de ambiente baseadas no modo (ex: .env, ou variáveis da Vercel)
-  // Access process.cwd() with a cast to avoid conflicts with global process type definitions in client declarations
+  // Carrega variáveis de ambiente (como VITE_API_KEY da Vercel)
+  // O cast (process as any) evita erros de tipo no Node.js
   const env = loadEnv(mode, (process as any).cwd(), '');
 
   return {
     plugins: [react()],
     define: {
-      // Isso permite usar process.env.API_KEY no código do navegador
-      // Ele pega o valor de VITE_API_KEY configurado na Vercel
+      // Injeta a chave da API no código do navegador de forma segura
       'process.env.API_KEY': JSON.stringify(env.VITE_API_KEY)
     }
   }

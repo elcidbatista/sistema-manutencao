@@ -1,7 +1,12 @@
-/// <reference types="vite/client" />
+// /// <reference types="vite/client" />
 
-declare namespace NodeJS {
-  interface ProcessEnv {
-    API_KEY: string;
+// Permite que o TypeScript entenda process.env.API_KEY
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      API_KEY: string;
+    }
   }
 }
+
+export {};

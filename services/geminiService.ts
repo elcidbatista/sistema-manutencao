@@ -1,18 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Inicializa o cliente GoogleGenAI com a chave da variável de ambiente process.env.API_KEY
-// A chave deve ser obtida exclusivamente de process.env.API_KEY
+// Inicializa o cliente GoogleGenAI.
+// A configuração no vite.config.ts substitui process.env.API_KEY pelo valor real da Vercel (VITE_API_KEY)
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
-  // Assume-se que a chave da API está configurada e válida no ambiente de execução.
-
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";
   }
 
-  // Filtra dados para enviar contexto conciso
+  // Filtra dados para enviar contexto conciso e economizar tokens
   const tarefasContexto = tarefas.map(t => ({
     titulo: t.titulo,
     maquina: t.maquina,
@@ -42,6 +40,6 @@ export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<st
     return response.text || "Não foi possível gerar a análise no momento.";
   } catch (error) {
     console.error("Erro ao chamar Gemini:", error);
-    return "Erro ao processar a análise com IA. Verifique se a chave da API é válida.";
+    return "Erro ao processar a análise com IA. Verifique se a chave da API (VITE_API_KEY) está configurada corretamente na Vercel.";
   }
 };
