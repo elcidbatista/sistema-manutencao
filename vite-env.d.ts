@@ -1,2 +1,9 @@
-// Type definitions for Vite environment
-// Reference to vite/client removed to resolve missing type definition error.
+// /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Use process.env.API_KEY directly as per @google/genai guidelines
+// Inicializa a IA com a chave correta conforme guidelines
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
