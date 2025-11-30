@@ -1,10 +1,22 @@
 import { GoogleGenAI } from "@google/genai";
 import { ManutencaoItem } from "../types";
 
-// Inicializa a IA com a chave correta conforme guidelines
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// CORREÇÃO CRÍTICA: Uso de import.meta.env.VITE_API_KEY para funcionar no navegador/Vercel
+// process.env causa erro de "process is not defined" e tela branca
+const apiKey = import.meta.env.VITE_API_KEY;
+
+let ai: GoogleGenAI | null = null;
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey: apiKey });
+} else {
+  console.warn("VITE_API_KEY não encontrada. A IA não funcionará.");
+}
 
 export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<string> => {
+  if (!ai) {
+    return "Erro: Chave de API não configurada. Verifique as configurações da Vercel (VITE_API_KEY).";
+  }
+
   if (tarefas.length === 0) {
     return "Nenhuma tarefa registrada para análise.";
   }
@@ -39,6 +51,6 @@ export const gerarAnaliseTecnica = async (tarefas: ManutencaoItem[]): Promise<st
     return response.text || "Não foi possível gerar a análise no momento.";
   } catch (error) {
     console.error("Erro ao chamar Gemini:", error);
-    return "Erro ao processar a análise com IA.";
+    return "Erro ao processar a análise com IA. Verifique sua chave de API.";
   }
 };
